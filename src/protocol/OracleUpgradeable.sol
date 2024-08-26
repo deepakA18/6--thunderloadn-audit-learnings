@@ -7,7 +7,7 @@ import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/I
 
 contract OracleUpgradeable is Initializable {
     address private s_poolFactory;
-
+    //@audit - info: need to do zero address check
     function __Oracle_init(address poolFactoryAddress) internal onlyInitializing {
         __Oracle_init_unchained(poolFactoryAddress);
     }
