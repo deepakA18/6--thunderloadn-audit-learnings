@@ -156,8 +156,12 @@ contract ThunderLoan is Initializable, OwnableUpgradeable, UUPSUpgradeable, Orac
         //@audit -> info: Not following CEI
         emit Deposit(msg.sender, token, amount);
         assetToken.mint(msg.sender, mintAmount);
+
+        //@audit - high
+        //unnecessary updation of exchange rate!!!
         uint256 calculatedFee = getCalculatedFee(token, amount);
         assetToken.updateExchangeRate(calculatedFee);
+        
         //@audit -> medium: incorrect params
         token.safeTransferFrom(msg.sender, address(assetToken), amount);
     }
@@ -267,6 +271,8 @@ contract ThunderLoan is Initializable, OwnableUpgradeable, UUPSUpgradeable, Orac
 
     function getCalculatedFee(IERC20 token, uint256 amount) public view returns (uint256 fee) {
         //slither-disable-next-line divide-before-multiply
+        //@audit - Impact prices are wrong -> likelihood gonna be high
+        //high -> if the fee is going to be in the token, then the value should reflect that.
         uint256 valueOfBorrowedToken = (amount * getPriceInWeth(address(token))) / s_feePrecision;
         //slither-disable-next-line divide-before-multiply
         fee = (valueOfBorrowedToken * s_flashLoanFee) / s_feePrecision;
